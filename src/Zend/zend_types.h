@@ -186,14 +186,14 @@ struct _zend_array {
 		} v;
 		uint32_t flags;
 	} u;
-	uint32_t          nTableMask;
-	Bucket           *arData;
-	uint32_t          nNumUsed;
-	uint32_t          nNumOfElements;
-	uint32_t          nTableSize;
-	uint32_t          nInternalPointer;
-	zend_long         nNextFreeElement;
-	dtor_func_t       pDestructor;
+	uint32_t          nTableMask; //掩码一般为-nTableSize
+	Bucket           *arData; //实际的存储容器。通过指针指向一段连续的内存，存储着bucket数组
+	uint32_t          nNumUsed;  //指所有已使用bucket的数量
+	uint32_t          nNumOfElements; //有效bucket的数量
+	uint32_t          nTableSize; //HashTable的大小。表示arData指向的bucket数组的大小
+	uint32_t          nInternalPointer; //HashTable的全局默认游标 reset/key/curren等都和它有有关
+	zend_long         nNextFreeElement; //HashTable的自然key
+	dtor_func_t       pDestructor; //析构函数。
 };
 
 /*

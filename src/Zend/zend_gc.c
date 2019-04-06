@@ -1024,6 +1024,10 @@ tail_call:
 	}
 }
 
+/**
+ * 垃圾回收算法
+ * 
+ */
 ZEND_API int zend_gc_collect_cycles(void)
 {
 	int count = 0;
@@ -1047,9 +1051,9 @@ ZEND_API int zend_gc_collect_cycles(void)
 		GC_G(gc_active) = 1;
 
 		GC_TRACE("Marking roots");
-		gc_mark_roots();
+		gc_mark_roots(); 			//扫描roots,将紫色标记为灰色
 		GC_TRACE("Scanning roots");
-		gc_scan_roots();
+		gc_scan_roots(); //扫描roots,将灰色标记为白色
 
 #if ZEND_GC_DEBUG
 		orig_gc_full = GC_G(gc_full);

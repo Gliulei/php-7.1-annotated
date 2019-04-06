@@ -68,9 +68,9 @@ typedef struct _gc_root_buffer {
 } gc_root_buffer;
 
 typedef struct _zend_gc_globals {
-	zend_bool         gc_enabled;
-	zend_bool         gc_active;
-	zend_bool         gc_full;
+	zend_bool         gc_enabled; //是否开启gc
+	zend_bool         gc_active; //垃圾回收算法是否运行
+	zend_bool         gc_full;   //垃圾缓冲区是否满了，在debug模式下有用
 
 	gc_root_buffer   *buf;				/* preallocated arrays of buffers   */
 	gc_root_buffer    roots;			/* list of possible roots of cycles */
@@ -81,8 +81,8 @@ typedef struct _zend_gc_globals {
 	gc_root_buffer    to_free;			/* list to free                     */
 	gc_root_buffer   *next_to_free;
 
-	uint32_t gc_runs;
-	uint32_t collected;
+	uint32_t gc_runs; //记录gc算法运行的次数，当缓冲区满了，才会运行gc算法
+	uint32_t collected; //记录gc算法回收的垃圾数
 
 #if GC_BENCH
 	uint32_t root_buf_length;
