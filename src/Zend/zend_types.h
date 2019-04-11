@@ -180,8 +180,8 @@ struct _zend_array {
 		struct {
 			ZEND_ENDIAN_LOHI_4(
 				zend_uchar    flags,
-				zend_uchar    nApplyCount,
-				zend_uchar    nIteratorsCount,
+				zend_uchar    nApplyCount, //递归遍历计数
+				zend_uchar    nIteratorsCount, //迭代器计数
 				zend_uchar    consistency)
 		} v;
 		uint32_t flags;
@@ -278,8 +278,8 @@ struct _zend_object {
 	uint32_t          handle; // TODO: may be removed ???
 	zend_class_entry *ce;
 	const zend_object_handlers *handlers;
-	HashTable        *properties;
-	zval              properties_table[1];
+	HashTable        *properties; //存储对象的动态普通属性值
+	zval              properties_table[1]; //柔性数组，存储对象的普通属性值
 };
 
 struct _zend_resource {

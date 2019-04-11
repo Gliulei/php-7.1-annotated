@@ -481,10 +481,10 @@ SAPI_API void sapi_activate(void)
 		SG(request_info).cookie_data = sapi_module.read_cookies();
 	}
 	if (sapi_module.activate) {
-		sapi_module.activate();
+		sapi_module.activate(); //调用sapi_module对应的activate函数
 	}
 	if (sapi_module.input_filter_init) {
-		sapi_module.input_filter_init();
+		sapi_module.input_filter_init(); //调用sapi_module对应的input_filter_init函数
 	}
 }
 

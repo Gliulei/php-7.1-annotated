@@ -217,58 +217,58 @@ SAPI_API void sapi_terminate_process(void);
 END_EXTERN_C()
 
 struct _sapi_module_struct {
-	char *name;
-	char *pretty_name;
+	char *name; //名字 如cli、fpm-cgi等
+	char *pretty_name; //更易理解的名字，比如fpm-fcgi对应的为FPM/astCGI
 
-	int (*startup)(struct _sapi_module_struct *sapi_module);
-	int (*shutdown)(struct _sapi_module_struct *sapi_module);
+	int (*startup)(struct _sapi_module_struct *sapi_module); //模块启动时调用的函数
+	int (*shutdown)(struct _sapi_module_struct *sapi_module); //模块结束时调用的函数
 
-	int (*activate)(void);
-	int (*deactivate)(void);
+	int (*activate)(void); //处理request时，激活需要调用的函数指针
+	int (*deactivate)(void); //处理完request时，使要调用的函数指针无效
 
-	size_t (*ub_write)(const char *str, size_t str_length);
-	void (*flush)(void *server_context);
-	zend_stat_t *(*get_stat)(void);
-	char *(*getenv)(char *name, size_t name_len);
+	size_t (*ub_write)(const char *str, size_t str_length); //这个函数指针用于输出数据
+	void (*flush)(void *server_context); //刷新缓存的函数指针
+	zend_stat_t *(*get_stat)(void); //判断对执行文件是否有执行权限
+	char *(*getenv)(char *name, size_t name_len); //获取函数变量的函数指针
 
-	void (*sapi_error)(int type, const char *error_msg, ...) ZEND_ATTRIBUTE_FORMAT(printf, 2, 3);
+	void (*sapi_error)(int type, const char *error_msg, ...) ZEND_ATTRIBUTE_FORMAT(printf, 2, 3); //错误处理函数指针
 
-	int (*header_handler)(sapi_header_struct *sapi_header, sapi_header_op_enum op, sapi_headers_struct *sapi_headers);
-	int (*send_headers)(sapi_headers_struct *sapi_headers);
-	void (*send_header)(sapi_header_struct *sapi_header, void *server_context);
+	int (*header_handler)(sapi_header_struct *sapi_header, sapi_header_op_enum op, sapi_headers_struct *sapi_headers);//调用header时被调用的函数指针
+	int (*send_headers)(sapi_headers_struct *sapi_headers); //发送全部header的函数指针
+	void (*send_header)(sapi_header_struct *sapi_header, void *server_context); //发送某一个header的函数指针
 
-	size_t (*read_post)(char *buffer, size_t count_bytes);
-	char *(*read_cookies)(void);
+	size_t (*read_post)(char *buffer, size_t count_bytes); //获取HTTP POST中数据的函数指针
+	char *(*read_cookies)(void); //获取cookie中数据的函数指针
 
-	void (*register_server_variables)(zval *track_vars_array);
-	void (*log_message)(char *message, int syslog_type_int);
-	double (*get_request_time)(void);
-	void (*terminate_process)(void);
+	void (*register_server_variables)(zval *track_vars_array); //从$_SERVER中获取变量的函数指针
+	void (*log_message)(char *message, int syslog_type_int); //输出错误信息函数指针
+	double (*get_request_time)(void); //获取请求时间的函数指针
+	void (*terminate_process)(void); //调用exit退出时的函数指针
 
-	char *php_ini_path_override;
+	char *php_ini_path_override; //PHP的ini文件被复写的地址
 
-	void (*default_post_reader)(void);
-	void (*treat_data)(int arg, char *str, zval *destArray);
-	char *executable_location;
+	void (*default_post_reader)(void); //负责解析POST数据的函数指针
+	void (*treat_data)(int arg, char *str, zval *destArray); //对数据进行处理的函数指针
+	char *executable_location; //执行的地理位置
 
-	int php_ini_ignore;
+	int php_ini_ignore; //是否不使用任何ini配置文件
 	int php_ini_ignore_cwd; /* don't look for php.ini in the current directory */
 
-	int (*get_fd)(int *fd);
+	int (*get_fd)(int *fd); //获取执行文件的fd的函数指针
 
-	int (*force_http_10)(void);
+	int (*force_http_10)(void); //强制使用http1.0版本的函数指针
 
-	int (*get_target_uid)(uid_t *);
-	int (*get_target_gid)(gid_t *);
+	int (*get_target_uid)(uid_t *); //获取执行程序的uid的函数指针
+	int (*get_target_gid)(gid_t *); //获取执行程序的gid的函数指针
 
-	unsigned int (*input_filter)(int arg, char *var, char **val, size_t val_len, size_t *new_val_len);
+	unsigned int (*input_filter)(int arg, char *var, char **val, size_t val_len, size_t *new_val_len); //对输入进行过滤的函数指针。比如将输入参数填充到自动全局变量$_GET、$_POST、$_COOKIE中
 
-	void (*ini_defaults)(HashTable *configuration_hash);
-	int phpinfo_as_text;
+	void (*ini_defaults)(HashTable *configuration_hash); //默认的ini配置的函数指针，把ini配置信息存在HashTable中
+	int phpinfo_as_text; //是否输出phpinfo信息
 
-	char *ini_entries;
-	const zend_function_entry *additional_functions;
-	unsigned int (*input_filter_init)(void);
+	char *ini_entries; //执行时附带的ini配置，可以使用php -d设置
+	const zend_function_entry *additional_functions; //每个SAPI模块特有的一些函数注册
+	unsigned int (*input_filter_init)(void); //
 };
 
 struct _sapi_post_entry {

@@ -870,7 +870,9 @@ static void ZEND_FASTCALL zend_hash_do_resize(HashTable *ht)
 		zend_error_noreturn(E_ERROR, "Possible integer overflow in memory allocation (%u * %zu + %zu)", ht->nTableSize * 2, sizeof(Bucket) + sizeof(uint32_t), sizeof(Bucket));
 	}
 }
-
+/**
+ * rehash操作 压实完Bucket数组 原来的Bucket是怎么释放的？
+ * */
 ZEND_API int ZEND_FASTCALL zend_hash_rehash(HashTable *ht)
 {
 	Bucket *p;

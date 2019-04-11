@@ -1320,7 +1320,7 @@ exit_loop:
 	sapi_module->php_ini_path_override = ini_path_override;
 	sapi_module->phpinfo_as_text = 1;
 	sapi_module->php_ini_ignore_cwd = 1;
-	sapi_startup(sapi_module);
+	sapi_startup(sapi_module); //sapi_module初始化
 	sapi_started = 1;
 
 	sapi_module->php_ini_ignore = ini_ignore;

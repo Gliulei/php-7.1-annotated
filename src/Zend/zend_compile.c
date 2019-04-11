@@ -1131,6 +1131,9 @@ ZEND_API zend_class_entry *do_bind_class(const zend_op_array* op_array, const ze
 }
 /* }}} */
 
+/**
+ * 父类与子类进行绑定
+ * */
 ZEND_API zend_class_entry *do_bind_inherited_class(const zend_op_array *op_array, const zend_op *opline, HashTable *class_table, zend_class_entry *parent_ce, zend_bool compile_time) /* {{{ */
 {
 	zend_class_entry *ce;

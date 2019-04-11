@@ -1682,6 +1682,9 @@ static void zend_do_check_for_inconsistent_traits_aliasing(zend_class_entry *ce)
 }
 /* }}} */
 
+/**
+ * trait与类进行关联
+ * */
 ZEND_API void zend_do_bind_traits(zend_class_entry *ce) /* {{{ */
 {
 

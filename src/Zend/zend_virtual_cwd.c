@@ -489,7 +489,7 @@ CWD_API void virtual_cwd_startup(void) /* {{{ */
 #ifdef ZTS
 	ts_allocate_id(&cwd_globals_id, sizeof(virtual_cwd_globals), (ts_allocate_ctor) cwd_globals_ctor, (ts_allocate_dtor) cwd_globals_dtor);
 #else
-	cwd_globals_ctor(&cwd_globals);
+	cwd_globals_ctor(&cwd_globals); //初始化cwd_globals
 #endif
 
 #if (defined(ZEND_WIN32) || defined(NETWARE)) && defined(ZTS)

@@ -113,24 +113,27 @@ typedef struct _zend_trait_alias {
 	uint32_t modifiers;
 } zend_trait_alias;
 
+/**
+ * php类的结构
+ * */
 struct _zend_class_entry {
-	char type;
-	zend_string *name;
-	struct _zend_class_entry *parent;
-	int refcount;
-	uint32_t ce_flags;
+	char type; //类的类型，共有两种 1 代表内置的类 2代表用户自定义的类
+	zend_string *name; //类名
+	struct _zend_class_entry *parent; //继承的父类指针
+	int refcount; //引用计数
+	uint32_t ce_flags;//位组合标记。其中0x10表示类有抽象方法等等
 
-	int default_properties_count;
-	int default_static_members_count;
-	zval *default_properties_table;
-	zval *default_static_members_table;
-	zval *static_members_table;
-	HashTable function_table;
-	HashTable properties_info;
-	HashTable constants_table;
+	int default_properties_count; //默认普通属性个数
+	int default_static_members_count; //默认静态属性个数
+	zval *default_properties_table; //默认普通属性值数组
+	zval *default_static_members_table; //默认静态属性值数组
+	zval *static_members_table; //静态属性值成员
+	HashTable function_table;  //类的方法
+	HashTable properties_info; //类的静态属性
+	HashTable constants_table; //类的常量存储
 
-	union _zend_function *constructor;
-	union _zend_function *destructor;
+	union _zend_function *constructor; //构造方法
+	union _zend_function *destructor;  //析构方法
 	union _zend_function *clone;
 	union _zend_function *__get;
 	union _zend_function *__set;
@@ -155,13 +158,13 @@ struct _zend_class_entry {
 	int (*serialize)(zval *object, unsigned char **buffer, size_t *buf_len, zend_serialize_data *data);
 	int (*unserialize)(zval *object, zend_class_entry *ce, const unsigned char *buf, size_t buf_len, zend_unserialize_data *data);
 
-	uint32_t num_interfaces;
-	uint32_t num_traits;
-	zend_class_entry **interfaces;
+	uint32_t num_interfaces; //类implements的接口个数
+	uint32_t num_traits; //类use的特性个数
+	zend_class_entry **interfaces; //类implements的接口指针
 
-	zend_class_entry **traits;
-	zend_trait_alias **trait_aliases;
-	zend_trait_precedence **trait_precedences;
+	zend_class_entry **traits; //类use的traits指针
+	zend_trait_alias **trait_aliases; //类use的特性方法的别名
+	zend_trait_precedence **trait_precedences; //类use的特性方法的优先级
 
 	union {
 		struct {
@@ -174,7 +177,7 @@ struct _zend_class_entry {
 			const struct _zend_function_entry *builtin_functions;
 			struct _zend_module_entry *module;
 		} internal;
-	} info;
+	} info; //记录类的其它信息，比如类所在的文件、注释之类。
 };
 
 typedef struct _zend_utility_functions {

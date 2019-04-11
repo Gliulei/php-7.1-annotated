@@ -659,9 +659,9 @@ int zend_startup(zend_utility_functions *utility_functions, char **extensions) /
 	extern zend_php_scanner_globals language_scanner_globals;
 #endif
 
-	start_memory_manager();
+	start_memory_manager(); //1.初始化内存管理
 
-	virtual_cwd_startup(); /* Could use shutdown to free the main cwd but it would just slow it down for CGI */
+	virtual_cwd_startup(); /* Could use shutdown to free the main cwd but it would just slow it down for CGI */ //2.初始化cwd_globals
 
 #if defined(__FreeBSD__) || defined(__DragonFly__)
 	/* FreeBSD and DragonFly floating point precision fix */
@@ -669,7 +669,7 @@ int zend_startup(zend_utility_functions *utility_functions, char **extensions) /
 #endif
 
 	zend_startup_strtod();
-	zend_startup_extensions_mechanism();
+	zend_startup_extensions_mechanism(); //3.启动扩展机制
 
 	/* Set up utility functions and values */
 	zend_error_cb = utility_functions->error_function;
@@ -707,8 +707,8 @@ int zend_startup(zend_utility_functions *utility_functions, char **extensions) /
 		}
 	}
 #else
-	zend_compile_file = compile_file;
-	zend_execute_ex = execute_ex;
+	zend_compile_file = compile_file; //4. 设置词法和语法解析的入口函数compile_file
+	zend_execute_ex = execute_ex; //5. 执行的入口函数execute_ex
 	zend_execute_internal = NULL;
 #endif /* HAVE_SYS_SDT_H */
 	zend_compile_string = compile_string;
@@ -717,14 +717,14 @@ int zend_startup(zend_utility_functions *utility_functions, char **extensions) /
 	/* Set up the default garbage collection implementation. */
 	gc_collect_cycles = zend_gc_collect_cycles;
 
-	zend_init_opcodes_handlers();
+	zend_init_opcodes_handlers(); //6. 初始化Zend虚拟机的4597个handler。
 
 	/* set up version */
 	zend_version_info = strdup(ZEND_CORE_VERSION_INFO);
 	zend_version_info_length = sizeof(ZEND_CORE_VERSION_INFO) - 1;
 
-	GLOBAL_FUNCTION_TABLE = (HashTable *) malloc(sizeof(HashTable));
-	GLOBAL_CLASS_TABLE = (HashTable *) malloc(sizeof(HashTable));
+	GLOBAL_FUNCTION_TABLE = (HashTable *) malloc(sizeof(HashTable)); //7. 对CG(function_table)->(compiler_globals.v) 初始化
+	GLOBAL_CLASS_TABLE = (HashTable *) malloc(sizeof(HashTable)); //对CG(class_table)->(compiler_globals.v) 初始化
 	GLOBAL_AUTO_GLOBALS_TABLE = (HashTable *) malloc(sizeof(HashTable));
 	GLOBAL_CONSTANTS_TABLE = (HashTable *) malloc(sizeof(HashTable));
 
@@ -756,27 +756,27 @@ int zend_startup(zend_utility_functions *utility_functions, char **extensions) /
 	zend_hash_destroy(executor_globals->zend_constants);
 	*executor_globals->zend_constants = *GLOBAL_CONSTANTS_TABLE;
 #else
-	ini_scanner_globals_ctor(&ini_scanner_globals);
-	php_scanner_globals_ctor(&language_scanner_globals);
-	zend_set_default_compile_time_values();
+	ini_scanner_globals_ctor(&ini_scanner_globals); //8. 对ini_scanner_globals进行初始化
+	php_scanner_globals_ctor(&language_scanner_globals); //9. 对全局变量language_scanner_globals进行初始化
+	zend_set_default_compile_time_values(); //设置编译时的一些值
 #ifdef ZEND_WIN32
 	zend_get_windows_version_info(&EG(windows_version_info));
 #endif
 #endif
-	EG(error_reporting) = E_ALL & ~E_NOTICE;
+	EG(error_reporting) = E_ALL & ~E_NOTICE; //(executor_globals.v)
 
-	zend_interned_strings_init();
-	zend_startup_builtin_functions();
-	zend_register_standard_constants();
-	zend_register_auto_global(zend_string_init("GLOBALS", sizeof("GLOBALS") - 1, 1), 1, php_auto_globals_create_globals);
+	zend_interned_strings_init(); //初始化内部字符串
+	zend_startup_builtin_functions(); //初始化内部函数
+	zend_register_standard_constants();  //函数注册常量
+	zend_register_auto_global(zend_string_init("GLOBALS", sizeof("GLOBALS") - 1, 1), 1, php_auto_globals_create_globals); //将GLOBALS添加到CG(auto_globals)变量表里
 
 #ifndef ZTS
-	zend_init_rsrc_plist();
-	zend_init_exception_op();
-	zend_init_call_trampoline_op();
+	zend_init_rsrc_plist(); //初始化持久符号表
+	zend_init_exception_op();  //初始化EG(exception_op)
+	zend_init_call_trampoline_op(); //初始化EG(call_trampoline_op)
 #endif
 
-	zend_ini_startup();
+	zend_ini_startup();  //初始化与配置文件php.ini解析相关的变量
 
 #ifdef ZEND_WIN32
 	/* Uses INI settings, so needs to be run after it. */

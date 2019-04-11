@@ -137,14 +137,14 @@ typedef struct _php_output_handler {
 	} func;
 } php_output_handler;
 
-ZEND_BEGIN_MODULE_GLOBALS(output)
+ZEND_BEGIN_MODULE_GLOBALS(output) //typedef struct _zend_##module_name##_globals
 	zend_stack handlers;
 	php_output_handler *active;
 	php_output_handler *running;
 	const char *output_start_filename;
 	int output_start_lineno;
 	int flags;
-ZEND_END_MODULE_GLOBALS(output)
+ZEND_END_MODULE_GLOBALS(output) //zend_##module_name##_globals
 
 PHPAPI ZEND_EXTERN_MODULE_GLOBALS(output)
 

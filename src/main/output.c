@@ -137,7 +137,7 @@ static void reverse_conflict_dtor(zval *zv)
  * Set up module globals and initalize the conflict and reverse conflict hash tables */
 PHPAPI void php_output_startup(void)
 {
-	ZEND_INIT_MODULE_GLOBALS(output, php_output_init_globals, NULL);
+	ZEND_INIT_MODULE_GLOBALS(output, php_output_init_globals, NULL); //->php_output_init_globals(&output_globals)
 	zend_hash_init(&php_output_handler_aliases, 8, NULL, NULL, 1);
 	zend_hash_init(&php_output_handler_conflicts, 8, NULL, NULL, 1);
 	zend_hash_init(&php_output_handler_reverse_conflicts, 8, NULL, reverse_conflict_dtor, 1);

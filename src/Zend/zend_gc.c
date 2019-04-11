@@ -209,6 +209,10 @@ static void gc_globals_ctor_ex(zend_gc_globals *gc_globals)
 #endif
 }
 
+/**
+ * 
+ * 对gc_globals进行初始化
+ * */
 ZEND_API void gc_globals_ctor(void)
 {
 #ifdef ZTS
