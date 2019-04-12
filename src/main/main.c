@@ -2206,7 +2206,7 @@ int php_module_startup(sapi_module_struct *sf, zend_module_entry *additional_mod
 	/* this will read in php.ini, set up the configuration parameters,
 	   load zend extensions and register php function extensions
 	   to be loaded later */
-	if (php_init_config() == FAILURE) {
+	if (php_init_config() == FAILURE) { //10）读取php.ini配置文件，调用zend_parse_ini_file进行解析，并注册
 		return FAILURE;
 	}
 
@@ -2214,7 +2214,7 @@ int php_module_startup(sapi_module_struct *sf, zend_module_entry *additional_mod
 	REGISTER_INI_ENTRIES();
 
 	/* Register Zend ini entries */
-	zend_register_standard_ini_entries();
+	zend_register_standard_ini_entries(); //11）注册ini相关的变量
 
 	/* Disable realpath cache if an open_basedir is set */
 	if (PG(open_basedir) && *PG(open_basedir)) {
@@ -2232,18 +2232,18 @@ int php_module_startup(sapi_module_struct *sf, zend_module_entry *additional_mod
 	zuv.html_errors = 1;
 	zuv.import_use_extension = ".php";
 	zuv.import_use_extension_length = (uint)strlen(zuv.import_use_extension);
-	php_startup_auto_globals();
+	php_startup_auto_globals(); //12) 注册全局变量，如$_GET/$_POST等
 	zend_set_utility_values(&zuv);
-	php_startup_sapi_content_types();
+	php_startup_sapi_content_types(); //13) 初始化SAPI对于不同类型内容处理函数
 
 	/* startup extensions statically compiled in */
-	if (php_register_internal_extensions_func() == FAILURE) {
+	if (php_register_internal_extensions_func() == FAILURE) { //14）注册内部扩展
 		php_printf("Unable to start builtin modules\n");
 		return FAILURE;
 	}
 
 	/* start additional PHP extensions */
-	php_register_extensions_bc(additional_modules, num_additional_modules);
+	php_register_extensions_bc(additional_modules, num_additional_modules); //注册附加php扩展
 
 	/* load and startup extensions compiled as shared objects (aka DLLs)
 	   as requested by php.ini entries
@@ -2253,10 +2253,10 @@ int php_module_startup(sapi_module_struct *sf, zend_module_entry *additional_mod
 	   ahead of all other internals
 	 */
 	php_ini_register_extensions();
-	zend_startup_modules();
+	zend_startup_modules(); //15） 启动模块
 
 	/* start Zend extensions */
-	zend_startup_extensions();
+	zend_startup_extensions(); //启动扩展
 
 	zend_collect_module_handlers();
 
@@ -2270,8 +2270,8 @@ int php_module_startup(sapi_module_struct *sf, zend_module_entry *additional_mod
 	}
 
 	/* disable certain classes and functions as requested by php.ini */
-	php_disable_functions();
-	php_disable_classes();
+	php_disable_functions(); //16） 禁用函数设置
+	php_disable_classes(); //禁用类设置
 
 	/* make core report what it should */
 	if ((module = zend_hash_str_find_ptr(&module_registry, "core", sizeof("core")-1)) != NULL) {
