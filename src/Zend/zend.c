@@ -77,7 +77,7 @@ static ZEND_INI_MH(OnUpdateErrorReporting) /* {{{ */
 
 static ZEND_INI_MH(OnUpdateGCEnabled) /* {{{ */
 {
-	OnUpdateBool(entry, new_value, mh_arg1, mh_arg2, mh_arg3, stage);
+	OnUpdateBool(entry, new_value, mh_arg1, mh_arg2, mh_arg3, stage); //此处会开启gc_enabled=1
 
 	if (GC_G(gc_enabled)) {
 		gc_init();
@@ -969,10 +969,10 @@ ZEND_API void zend_activate(void) /* {{{ */
 #ifdef ZTS
 	virtual_cwd_activate();
 #endif
-	gc_reset();
-	init_compiler();
-	init_executor();
-	startup_scanner();
+	gc_reset(); //1.初始化垃圾回收相关变量和函数
+	init_compiler(); //2.初始化编译器以及CG
+	init_executor(); //3.初始化执行器以及EG
+	startup_scanner(); //4.初始化扫描器以及SCNA
 }
 /* }}} */
 

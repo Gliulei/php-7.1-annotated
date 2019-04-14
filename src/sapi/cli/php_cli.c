@@ -987,7 +987,7 @@ static int do_cli(int argc, char **argv) /* {{{ */
 			if (interactive && cli_shell_callbacks.cli_shell_run) {
 				exit_status = cli_shell_callbacks.cli_shell_run();
 			} else {
-				php_execute_script(&file_handle);
+				php_execute_script(&file_handle); //执行阶段 调用zend_execute_scripts，该函数通过调用compile_file对php代码进行词法和语法分析，生成AST，进而生成op_array
 				exit_status = EG(exit_status);
 			}
 			break;
@@ -1154,7 +1154,7 @@ static int do_cli(int argc, char **argv) /* {{{ */
 
 out:
 	if (request_started) {
-		php_request_shutdown((void *) 0);
+		php_request_shutdown((void *) 0); //请求关闭阶段
 	}
 	if (translated_path) {
 		free(translated_path);
@@ -1342,7 +1342,7 @@ exit_loop:
 	sapi_module->ini_entries = ini_entries;
 
 	/* startup after we get the above ini override se we get things right */
-	if (sapi_module->startup(sapi_module) == FAILURE) {
+	if (sapi_module->startup(sapi_module) == FAILURE) { //模块初始化
 		/* there is no way to see if we must call zend_ini_deactivate()
 		 * since we cannot check if EG(ini_directives) has been initialised
 		 * because the executor's constructor does not set initialize it.
@@ -1390,7 +1390,7 @@ out:
 		free(ini_entries);
 	}
 	if (module_started) {
-		php_module_shutdown();
+		php_module_shutdown(); //模块关闭阶段
 	}
 	if (sapi_started) {
 		sapi_shutdown();

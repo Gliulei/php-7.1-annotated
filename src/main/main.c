@@ -1622,7 +1622,7 @@ int php_request_startup(void)
 		PG(in_error_log) = 0;
 		PG(during_request_startup) = 1;
 
-		php_output_activate();
+		php_output_activate(); //1) 调用php_output_activate函数，重置output_globals,初始化输出handler的栈，并把OG(flags)置为使用中
 
 		/* initialize global variables */
 		PG(modules_activated) = 0;
@@ -1630,10 +1630,10 @@ int php_request_startup(void)
 		PG(connection_status) = PHP_CONNECTION_NORMAL;
 		PG(in_user_include) = 0;
 
-		zend_activate();
-		sapi_activate();
+		zend_activate(); //2) 调用zend_activate函数
+		sapi_activate(); //3) 对SG进行初始化
 
-		zend_signal_activate();
+		zend_signal_activate(); //4） 对信号进行处理 
 
 		if (PG(max_input_time) == -1) {
 			zend_set_timeout(EG(timeout_seconds), 1);
@@ -1666,7 +1666,7 @@ int php_request_startup(void)
 		/* PG(during_request_startup) = 0; */
 
 		php_hash_environment();
-		zend_activate_modules();
+		zend_activate_modules(); //5) 回调各扩展的定义的request_startup钩子函数
 		PG(modules_activated)=1;
 	} zend_catch {
 		retval = FAILURE;
@@ -2211,10 +2211,10 @@ int php_module_startup(sapi_module_struct *sf, zend_module_entry *additional_mod
 	}
 
 	/* Register PHP core ini entries */
-	REGISTER_INI_ENTRIES();
+	REGISTER_INI_ENTRIES(); //注册core ini （ini在本类中）
 
 	/* Register Zend ini entries */
-	zend_register_standard_ini_entries(); //11）注册ini相关的变量
+	zend_register_standard_ini_entries(); //11）注册ini相关的变量 开启gc_enabled=1
 
 	/* Disable realpath cache if an open_basedir is set */
 	if (PG(open_basedir) && *PG(open_basedir)) {
