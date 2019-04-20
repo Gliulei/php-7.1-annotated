@@ -1698,7 +1698,7 @@ int fpm_conf_init_main(int test_conf, int force_daemon) /* {{{ */
 		}
 	}
 
-	ret = fpm_conf_load_ini_file(fpm_globals.config);
+	ret = fpm_conf_load_ini_file(fpm_globals.config); //读取配置文件
 
 	if (0 > ret) {
 		zlog(ZLOG_ERROR, "failed to load configuration file '%s'", fpm_globals.config);

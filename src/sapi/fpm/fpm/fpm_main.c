@@ -1859,7 +1859,7 @@ consult the installation file that came with this distribution, or visit \n\
 		}
 	}
 
-	if (0 > fpm_init(argc, argv, fpm_config ? fpm_config : CGIG(fpm_config), fpm_prefix, fpm_pid, test_conf, php_allow_to_run_as_root, force_daemon, force_stderr)) {
+	if (0 > fpm_init(argc, argv, fpm_config ? fpm_config : CGIG(fpm_config), fpm_prefix, fpm_pid, test_conf, php_allow_to_run_as_root, force_daemon, force_stderr)) { //fork出master进程
 
 		if (fpm_globals.send_config_pipe[1]) {
 			int writeval = 0;
@@ -1892,7 +1892,7 @@ consult the installation file that came with this distribution, or visit \n\
 	request = fpm_init_request(fcgi_fd);
 
 	zend_first_try {
-		while (EXPECTED(fcgi_accept_request(request) >= 0)) {
+		while (EXPECTED(fcgi_accept_request(request) >= 0)) { //实际调用的是accept,阻塞等待请求
 			char *primary_script = NULL;
 			request_body_fd = -1;
 			SG(server_context) = (void *) request;
@@ -1902,7 +1902,7 @@ consult the installation file that came with this distribution, or visit \n\
 
 			/* request startup only after we've done all we can to
 			 *            get path_translated */
-			if (UNEXPECTED(php_request_startup() == FAILURE)) {
+			if (UNEXPECTED(php_request_startup() == FAILURE)) { //请求初始化
 				fcgi_finish_request(request, 1);
 				SG(server_context) = NULL;
 				php_module_shutdown();
@@ -1962,9 +1962,9 @@ consult the installation file that came with this distribution, or visit \n\
 				goto fastcgi_request_done;
 			}
 
-			fpm_request_executing();
+			fpm_request_executing(); //请求执行
 
-			php_execute_script(&file_handle);
+			php_execute_script(&file_handle); //3 对脚本执行编译
 
 fastcgi_request_done:
 			if (EXPECTED(primary_script)) {
@@ -1986,13 +1986,13 @@ fastcgi_request_done:
 				}
 			}
 
-			fpm_request_end();
+			fpm_request_end(); //请求结束
 			fpm_log_write(NULL);
 
 			efree(SG(request_info).path_translated);
 			SG(request_info).path_translated = NULL;
 
-			php_request_shutdown((void *) 0);
+			php_request_shutdown((void *) 0); //4） 关闭请求，继续进行循环
 
 			requests++;
 			if (UNEXPECTED(max_requests && (requests == max_requests))) {
@@ -2017,7 +2017,7 @@ fastcgi_request_done:
 out:
 
 	SG(server_context) = NULL;
-	php_module_shutdown();
+	php_module_shutdown(); //5）如果进程退出，调用php_module_shutdown关闭所有模块
 
 	if (parent) {
 		sapi_shutdown();
