@@ -367,7 +367,7 @@ int fpm_children_make(struct fpm_worker_pool_s *wp, int in_event_loop, int nb_to
 
 	if (wp->config->pm == PM_STYLE_DYNAMIC) {
 		if (!in_event_loop) { /* starting */
-			max = wp->config->pm_start_servers;
+			max = wp->config->pm_start_servers; //dynamic模式下 先启动pm_start_servers数量的进程，根据请求动态变化
 		} else {
 			max = wp->running_children + nb_to_spawn;
 		}
@@ -378,7 +378,7 @@ int fpm_children_make(struct fpm_worker_pool_s *wp, int in_event_loop, int nb_to
 			max = wp->running_children + nb_to_spawn;
 		}
 	} else { /* PM_STYLE_STATIC */
-		max = wp->config->pm_max_children;
+		max = wp->config->pm_max_children; //static模式下 启动固定数量的进程
 	}
 
 	/*

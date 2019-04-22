@@ -1878,7 +1878,7 @@ consult the installation file that came with this distribution, or visit \n\
 	}
 	fpm_is_running = 1;
 
-	fcgi_fd = fpm_run(&max_requests);
+	fcgi_fd = fpm_run(&max_requests); //fork出子进程
 	parent = 0;
 
 	/* onced forked tell zlog to also send messages through sapi_cgi_log_fastcgi() */

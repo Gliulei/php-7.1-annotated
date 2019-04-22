@@ -106,9 +106,9 @@ struct ini_value_parser_s {
 };
 
 enum {
-	PM_STYLE_STATIC = 1,
-	PM_STYLE_DYNAMIC = 2,
-	PM_STYLE_ONDEMAND = 3
+	PM_STYLE_STATIC = 1, //static模式 会始终保持一个固定数量的子进程 由pm.max_children定义
+	PM_STYLE_DYNAMIC = 2, //dynamic模式 子进程的数量是动态变化的 子进程会在pm.start_servers~pm.max_children范围内变化
+	PM_STYLE_ONDEMAND = 3 //ondemand模式 把内存放在第一位 进程闲置pm.process_idle_timeout秒后会被杀掉
 };
 
 int fpm_conf_init_main(int test_conf, int force_daemon);

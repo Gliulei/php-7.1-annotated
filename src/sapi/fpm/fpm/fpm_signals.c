@@ -183,7 +183,7 @@ int fpm_signals_init_main() /* {{{ */
 {
 	struct sigaction act;
 
-	if (0 > socketpair(AF_UNIX, SOCK_STREAM, 0, sp)) {
+	if (0 > socketpair(AF_UNIX, SOCK_STREAM, 0, sp)) { //创建管道并设置为非阻塞模式
 		zlog(ZLOG_SYSERROR, "failed to init signals: socketpair()");
 		return -1;
 	}
@@ -199,7 +199,7 @@ int fpm_signals_init_main() /* {{{ */
 	}
 
 	memset(&act, 0, sizeof(act));
-	act.sa_handler = sig_handler;
+	act.sa_handler = sig_handler; //设置信号函数
 	sigfillset(&act.sa_mask);
 
 	if (0 > sigaction(SIGTERM,  &act, 0) ||
@@ -216,7 +216,7 @@ int fpm_signals_init_main() /* {{{ */
 }
 /* }}} */
 
-int fpm_signals_init_child() /* {{{ */
+int fpm_signals_init_child() /* {{{ */ //worker进程对信号的处理
 {
 	struct sigaction act, act_dfl;
 
