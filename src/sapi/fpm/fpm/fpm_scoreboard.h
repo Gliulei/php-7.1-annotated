@@ -14,27 +14,27 @@
 #include "fpm_worker_pool.h"
 #include "fpm_atomic.h"
 
-#define FPM_SCOREBOARD_ACTION_SET 0
-#define FPM_SCOREBOARD_ACTION_INC 1
+#define FPM_SCOREBOARD_ACTION_SET 0 //重置操作
+#define FPM_SCOREBOARD_ACTION_INC 1 //增加操作
 
-struct fpm_scoreboard_proc_s {
+struct fpm_scoreboard_proc_s { //对应各worker进程的详细信息
 	union {
-		atomic_t lock;
+		atomic_t lock; //保证原子性的锁机制
 		char dummy[16];
 	};
-	int used;
+	int used; //是否被使用
 	time_t start_epoch;
-	pid_t pid;
+	pid_t pid; //进程id
 	unsigned long requests;
-	enum fpm_request_stage_e request_stage;
-	struct timeval accepted;
-	struct timeval duration;
-	time_t accepted_epoch;
-	struct timeval tv;
-	char request_uri[128];
-	char query_string[512];
-	char request_method[16];
-	size_t content_length; /* used with POST only */
+	enum fpm_request_stage_e request_stage; //请求处理阶段
+	struct timeval accepted; //accept请求的时间
+	struct timeval duration; //脚本执行的时间
+	time_t accepted_epoch; //accept请求时间戳
+	struct timeval tv; //活跃时间
+	char request_uri[128]; //请求URI
+	char query_string[512]; //请求参数
+	char request_method[16];  //请求方法
+	size_t content_length; /* used with POST only */ //请求长度
 	char script_filename[256];
 	char auth_user[32];
 #ifdef HAVE_TIMES
@@ -43,29 +43,29 @@ struct fpm_scoreboard_proc_s {
 	struct tms last_request_cpu;
 	struct timeval last_request_cpu_duration;
 #endif
-	size_t memory;
+	size_t memory; //内存使用大小
 };
 
 struct fpm_scoreboard_s {
-	union {
+	union { //保证原子性的锁机制
 		atomic_t lock;
 		char dummy[16];
 	};
-	char pool[32];
-	int pm;
-	time_t start_epoch;
-	int idle;
-	int active;
-	int active_max;
-	unsigned long int requests;
-	unsigned int max_children_reached;
-	int lq;
-	int lq_max;
-	unsigned int lq_len;
-	unsigned int nprocs;
-	int free_proc;
-	unsigned long int slow_rq;
-	struct fpm_scoreboard_proc_s *procs[];
+	char pool[32]; //worker名称
+	int pm; //运行模式
+	time_t start_epoch; //开始的时间
+	int idle; //process的空闲数
+	int active; //process的活跃数
+	int active_max; //最大活跃数
+	unsigned long int requests; //请求次数
+	unsigned int max_children_reached; //达到最大进程数限制的次数
+	int lq;               //当前listen queue的请求数
+	int lq_max;           //listen queue的大小
+	unsigned int lq_len;  //listen queue的长度
+	unsigned int nprocs;  //process的总数
+	int free_proc;  //从process的列表遍历下一个空闲对象的开始下标
+	unsigned long int slow_rq; //慢请求数
+	struct fpm_scoreboard_proc_s *procs[]; //计分板详情
 };
 
 int fpm_scoreboard_init_main();

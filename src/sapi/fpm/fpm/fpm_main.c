@@ -1896,7 +1896,7 @@ consult the installation file that came with this distribution, or visit \n\
 			char *primary_script = NULL;
 			request_body_fd = -1;
 			SG(server_context) = (void *) request;
-			init_request_info();
+			init_request_info(); //初始化request
 
 			fpm_request_info();
 
@@ -1962,9 +1962,9 @@ consult the installation file that came with this distribution, or visit \n\
 				goto fastcgi_request_done;
 			}
 
-			fpm_request_executing(); //请求执行
+			fpm_request_executing(); //解析FastCGI协议
 
-			php_execute_script(&file_handle); //3 对脚本执行编译
+			php_execute_script(&file_handle); //执行php脚本
 
 fastcgi_request_done:
 			if (EXPECTED(primary_script)) {
@@ -1994,7 +1994,7 @@ fastcgi_request_done:
 
 			php_request_shutdown((void *) 0); //4） 关闭请求，继续进行循环
 
-			requests++;
+			requests++; //超过最大执行次数，退出
 			if (UNEXPECTED(max_requests && (requests == max_requests))) {
 				fcgi_finish_request(request, 1);
 				break;
