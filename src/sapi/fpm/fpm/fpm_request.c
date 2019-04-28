@@ -94,10 +94,10 @@ void fpm_request_reading_headers() /* {{{ */
 	proc->query_string[0] = '\0';
 	proc->auth_user[0] = '\0';
 	proc->content_length = 0;
-	fpm_scoreboard_proc_release(proc);
+	fpm_scoreboard_proc_release(proc); //释放统计单元
 
 	/* idle--, active++, request++ */
-	fpm_scoreboard_update(-1, 1, 0, 0, 1, 0, 0, FPM_SCOREBOARD_ACTION_INC, NULL);
+	fpm_scoreboard_update(-1, 1, 0, 0, 1, 0, 0, FPM_SCOREBOARD_ACTION_INC, NULL); //更新计分板
 }
 /* }}} */
 

@@ -112,7 +112,7 @@ int fpm_run(int *max_requests) /* {{{ */
 	}
 
 	/* run event loop forever */
-	fpm_event_loop(0);
+	fpm_event_loop(0); //master进程进入event循环，不在往下走
 
 run_child: /* only workers reach this point */
 

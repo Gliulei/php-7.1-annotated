@@ -21,12 +21,12 @@ const char *fpm_request_get_stage_name(int stage);
 int fpm_request_last_activity(struct fpm_child_s *child, struct timeval *tv);
 
 enum fpm_request_stage_e {
-	FPM_REQUEST_ACCEPTING = 1,
-	FPM_REQUEST_READING_HEADERS,
-	FPM_REQUEST_INFO,
-	FPM_REQUEST_EXECUTING,
-	FPM_REQUEST_END,
-	FPM_REQUEST_FINISHED
+	FPM_REQUEST_ACCEPTING = 1, //等待请求阶段
+	FPM_REQUEST_READING_HEADERS, //读取fastcgi请求header阶段
+	FPM_REQUEST_INFO,   //获取请求信息阶段
+	FPM_REQUEST_EXECUTING,  //执行请求阶段
+	FPM_REQUEST_END,   //没有使用
+	FPM_REQUEST_FINISHED  //请求处理完成
 };
 
 #endif
