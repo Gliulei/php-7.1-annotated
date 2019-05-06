@@ -114,7 +114,7 @@ void fpm_request_info() /* {{{ */
 
 	fpm_clock_get(&now);
 
-	proc = fpm_scoreboard_proc_acquire(NULL, -1, 0);
+	proc = fpm_scoreboard_proc_acquire(NULL, -1, 0); //获取统计单元
 	if (proc == NULL) {
 		zlog(ZLOG_WARNING, "failed to acquire proc scoreboard");
 		return;

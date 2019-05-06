@@ -390,7 +390,7 @@ int php_init_config(void)
 	zend_hash_init(&configuration_hash, 8, NULL, config_zval_dtor, 1);
 
 	if (sapi_module.ini_defaults) {
-		sapi_module.ini_defaults(&configuration_hash);
+		sapi_module.ini_defaults(&configuration_hash); //sapi_module.ini_defaults在php_cli的main函数中设置
 	}
 
 	zend_llist_init(&extension_lists.engine, sizeof(char *), (llist_dtor_func_t) free_estring, 1);
@@ -412,7 +412,7 @@ int php_init_config(void)
 		char phprc_path[MAXPATHLEN];
 #endif
 
-		env_location = getenv("PHPRC");
+		env_location = getenv("PHPRC"); //使用PHPRC环境变量指定的配置文件，配置文件名可以自定义
 
 #ifdef PHP_WIN32
 		if (!env_location) {

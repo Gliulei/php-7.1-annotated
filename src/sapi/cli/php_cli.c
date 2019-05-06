@@ -1317,7 +1317,7 @@ int main(int argc, char *argv[])
 exit_loop:
 
 	sapi_module->ini_defaults = sapi_cli_ini_defaults;
-	sapi_module->php_ini_path_override = ini_path_override;
+	sapi_module->php_ini_path_override = ini_path_override; //-c 选项下的配置
 	sapi_module->phpinfo_as_text = 1;
 	sapi_module->php_ini_ignore_cwd = 1;
 	sapi_startup(sapi_module); //sapi_module初始化

@@ -1903,7 +1903,7 @@ consult the installation file that came with this distribution, or visit \n\
 			/* request startup only after we've done all we can to
 			 *            get path_translated */
 			if (UNEXPECTED(php_request_startup() == FAILURE)) { //请求初始化
-				fcgi_finish_request(request, 1);
+				fcgi_finish_request(request, 1); //响应协议
 				SG(server_context) = NULL;
 				php_module_shutdown();
 				return FPM_EXIT_SOFTWARE;
