@@ -252,11 +252,11 @@ struct _zend_mm_heap {
 	int                overflow;                /* memory overflow flag */
 #endif
 
-	zend_mm_huge_list *huge_list;               /* list of huge allocated blocks */
+	zend_mm_huge_list *huge_list;               /* list of huge allocated blocks */ //用以挂载分配的大块内存的单向列表，方便后续MM关闭时释放
 
-	zend_mm_chunk     *main_chunk;
-	zend_mm_chunk     *cached_chunks;			/* list of unused chunks */
-	int                chunks_count;			/* number of alocated chunks */
+	zend_mm_chunk     *main_chunk;        //双向链表，存储使用中的chunk的首地址
+	zend_mm_chunk     *cached_chunks;			/* list of unused chunks */ //双向链表，缓存的chunk的首地址
+	int                chunks_count;			/* number of alocated chunks */ //使用的chunk个数，也就是链表main_chunk中的元素个数
 	int                peak_chunks_count;		/* peak number of allocated chunks for current request */
 	int                cached_chunks_count;		/* number of cached chunks */
 	double             avg_chunks_count;		/* average number of chunks allocated per request */
@@ -277,15 +277,15 @@ struct _zend_mm_heap {
 };
 
 struct _zend_mm_chunk {
-	zend_mm_heap      *heap;
-	zend_mm_chunk     *next;
-	zend_mm_chunk     *prev;
-	uint32_t           free_pages;				/* number of free pages */
-	uint32_t           free_tail;               /* number of free pages at the end of chunk */
-	uint32_t           num;
+	zend_mm_heap      *heap; //指向heap
+	zend_mm_chunk     *next; //指向下一个chunk
+	zend_mm_chunk     *prev; //指向上一个chunk
+	uint32_t           free_pages;				/* number of free pages */ //当前chunk的剩余page数
+	uint32_t           free_tail;               /* number of free pages at the end of chunk */ //此chunk的最后一块连续可用page的起始编号
+	uint32_t           num; //代表此chunk在链表main_chunk中的编号
 	char               reserve[64 - (sizeof(void*) * 3 + sizeof(int) * 3)];
-	zend_mm_heap       heap_slot;               /* used only in main chunk */
-	zend_mm_page_map   free_map;                /* 512 bits or 64 bytes */
+	zend_mm_heap       heap_slot;               /* used only in main chunk */ //heap结构，只有主chunk会用到
+	zend_mm_page_map   free_map;                /* 512 bits or 64 bytes */ //在64位机器下，其为8个元素的数组，每个元素为64bit的整型
 	zend_mm_page_info  map[ZEND_MM_PAGES];      /* 2 KB = 512 * 4 */
 };
 
@@ -301,8 +301,9 @@ struct _zend_mm_bin {
 	char               bytes[ZEND_MM_PAGE_SIZE * 8];
 };
 
+//按固定大小切好的small内存槽
 struct _zend_mm_free_slot {
-	zend_mm_free_slot *next_free_slot;
+	zend_mm_free_slot *next_free_slot; //此指针只有内存未分配时用到，分配后整个结构体转为char使用
 };
 
 struct _zend_mm_huge_list {
@@ -1044,8 +1045,8 @@ found:
 	}
 	/* mark run as allocated */
 	chunk->free_pages -= pages_count;
-	zend_mm_bitset_set_range(chunk->free_map, page_num, pages_count);
-	chunk->map[page_num] = ZEND_MM_LRUN(pages_count);
+	zend_mm_bitset_set_range(chunk->free_map, page_num, pages_count); //标志当前页用于large内存分配，分配数目为pages_count
+	chunk->map[page_num] = ZEND_MM_LRUN(pages_count); //更新free_tail
 	if (page_num == chunk->free_tail) {
 		chunk->free_tail = page_num + pages_count;
 	}
@@ -1711,7 +1712,7 @@ static void *zend_mm_alloc_huge(zend_mm_heap *heap, size_t size ZEND_FILE_LINE_D
 	 */
 	size_t new_size = ZEND_MM_ALIGNED_SIZE_EX(size, MAX(REAL_PAGE_SIZE, ZEND_MM_CHUNK_SIZE));
 #else
-	size_t new_size = ZEND_MM_ALIGNED_SIZE_EX(size, REAL_PAGE_SIZE);
+	size_t new_size = ZEND_MM_ALIGNED_SIZE_EX(size, REAL_PAGE_SIZE); //根据内存大小对齐，将size计算为要申请的内存长度new_size
 #endif
 	void *ptr;
 
@@ -1791,6 +1792,7 @@ static void zend_mm_free_huge(zend_mm_heap *heap, void *ptr ZEND_FILE_LINE_DC ZE
 
 static zend_mm_heap *zend_mm_init(void)
 {
+	//向系统申请2M大小的chunk
 	zend_mm_chunk *chunk = (zend_mm_chunk*)zend_mm_chunk_alloc_int(ZEND_MM_CHUNK_SIZE, ZEND_MM_CHUNK_SIZE);
 	zend_mm_heap *heap;
 
@@ -1804,7 +1806,7 @@ static zend_mm_heap *zend_mm_init(void)
 #endif
 		return NULL;
 	}
-	heap = &chunk->heap_slot;
+	heap = &chunk->heap_slot; //heap结构实际是主chunk嵌入的一个结构，后面再分配chunk的heap_slot不再使用
 	chunk->heap = heap;
 	chunk->next = chunk;
 	chunk->prev = chunk;
@@ -1813,9 +1815,9 @@ static zend_mm_heap *zend_mm_init(void)
 	chunk->num = 0;
 	chunk->free_map[0] = (Z_L(1) << ZEND_MM_FIRST_PAGE) - 1;
 	chunk->map[0] = ZEND_MM_LRUN(ZEND_MM_FIRST_PAGE);
-	heap->main_chunk = chunk;
-	heap->cached_chunks = NULL;
-	heap->chunks_count = 1;
+	heap->main_chunk = chunk;   //指向主chunk
+	heap->cached_chunks = NULL; //缓存chunk链表
+	heap->chunks_count = 1; //已分配chunk数
 	heap->peak_chunks_count = 1;
 	heap->cached_chunks_count = 0;
 	heap->avg_chunks_count = 1.0;
