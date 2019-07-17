@@ -880,7 +880,7 @@ ZEND_API int ZEND_FASTCALL zend_hash_rehash(HashTable *ht)
 
 	IS_CONSISTENT(ht);
 
-	if (UNEXPECTED(ht->nNumOfElements == 0)) {
+	if (UNEXPECTED(ht->nNumOfElements == 0)) { //没有已删除的直接遍历Bucket数组重新插入索引数据即可
 		if (ht->u.flags & HASH_FLAG_INITIALIZED) {
 			ht->nNumUsed = 0;
 			HT_HASH_RESET(ht);
@@ -901,6 +901,7 @@ ZEND_API int ZEND_FASTCALL zend_hash_rehash(HashTable *ht)
 	} else {
 		do {
 			if (UNEXPECTED(Z_TYPE(p->val) == IS_UNDEF)) {
+				//有已删除元素则将后面的value依次前移，压实Bucket数组
 				uint32_t j = i;
 				Bucket *q = p;
 

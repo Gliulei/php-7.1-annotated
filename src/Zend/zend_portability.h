@@ -383,7 +383,7 @@ char *alloca();
 # define ZEND_FILE_LINE_ORIG_RELAY_CC	, ZEND_FILE_LINE_ORIG_RELAY_C
 #else
 # define ZEND_FILE_LINE_D
-# define ZEND_FILE_LINE_DC
+# define ZEND_FILE_LINE_DC //记录文件名和行号，在debug开启的时候才有效，不是debug模式下可以忽略
 # define ZEND_FILE_LINE_ORIG_D
 # define ZEND_FILE_LINE_ORIG_DC
 # define ZEND_FILE_LINE_RELAY_C

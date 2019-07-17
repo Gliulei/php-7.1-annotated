@@ -179,7 +179,7 @@ struct _zend_array {
 	union {
 		struct {
 			ZEND_ENDIAN_LOHI_4(
-				zend_uchar    flags,
+				zend_uchar    flags,    //用各个bit来表达HashTable的各种标记。
 				zend_uchar    nApplyCount, //递归遍历计数
 				zend_uchar    nIteratorsCount, //迭代器计数
 				zend_uchar    consistency)
