@@ -276,24 +276,27 @@ ZEND_API void ZEND_FASTCALL gc_possible_root(zend_refcounted *ref)
 	if (UNEXPECTED(CG(unclean_shutdown)) || UNEXPECTED(GC_G(gc_active))) {
 		return;
 	}
-
+	//插入的节点必须是array或者object类型
 	ZEND_ASSERT(GC_TYPE(ref) == IS_ARRAY || GC_TYPE(ref) == IS_OBJECT);
-	ZEND_ASSERT(EXPECTED(GC_REF_GET_COLOR(ref) == GC_BLACK));
-	ZEND_ASSERT(!GC_ADDRESS(GC_INFO(ref)));
+	ZEND_ASSERT(EXPECTED(GC_REF_GET_COLOR(ref) == GC_BLACK)); //插入的节点必须是GC_BLACK，黑色意味着没有被标记过
+	ZEND_ASSERT(!GC_ADDRESS(GC_INFO(ref))); //没有在缓冲区存在过
 
 	GC_BENCH_INC(zval_possible_root);
 
-	newRoot = GC_G(unused);
+	newRoot = GC_G(unused); //先看下unused中有没有可用的
 	if (newRoot) {
-		GC_G(unused) = newRoot->prev;
+		GC_G(unused) = newRoot->prev; //有的话先用unused的，然后将GC_G(unused)指向单链表的下一个
 	} else if (GC_G(first_unused) != GC_G(last_unused)) {
-		newRoot = GC_G(first_unused);
+		newRoot = GC_G(first_unused);  //unused没有可用的，且buf中还有可用的
 		GC_G(first_unused)++;
 	} else {
+		 //buf缓存区已满，这时需要启动垃圾检查程序了，遍历roots，将真正的垃圾释放
+		//垃圾回收的动作就是在这触发的
 		if (!GC_G(gc_enabled)) {
 			return;
 		}
 		GC_REFCOUNT(ref)++;
+		//启动垃圾回收过程
 		gc_collect_cycles();
 		GC_REFCOUNT(ref)--;
 		if (UNEXPECTED(GC_REFCOUNT(ref)) == 0) {
@@ -315,11 +318,13 @@ ZEND_API void ZEND_FASTCALL gc_possible_root(zend_refcounted *ref)
 		}
 		GC_G(unused) = newRoot->prev;
 	}
-
+	//将插入的ref标为紫色，防止重复插入	
 	GC_TRACE_SET_COLOR(ref, GC_PURPLE);
+	//注意：gc_info不仅仅只有颜色的信息，还会记录当前gc_root_buffer在整个buf中的位置
+    //这样做的目的是可以直接根据zend_value的gc信息取到它的gc_root_buffer，便于进行删除操作
 	GC_INFO(ref) = (newRoot - GC_G(buf)) | GC_PURPLE;
 	newRoot->ref = ref;
-
+	//GC_G(roots).next指向新插入的元素
 	newRoot->next = GC_G(roots).next;
 	newRoot->prev = &GC_G(roots);
 	GC_G(roots).next->prev = newRoot;
@@ -339,6 +344,8 @@ ZEND_API void ZEND_FASTCALL gc_remove_from_buffer(zend_refcounted *ref)
 
 	GC_BENCH_INC(zval_remove_from_buffer);
 
+	//GC_ADDRESS就是获取节点在缓存区中的位置，因为删除时输入是zend_refcounted
+    //而缓存链表的节点类型是gc_root_buffer
 	root = GC_G(buf) + GC_ADDRESS(GC_INFO(ref));
 	if (GC_REF_GET_COLOR(ref) != GC_BLACK) {
 		GC_TRACE_SET_COLOR(ref, GC_PURPLE);
