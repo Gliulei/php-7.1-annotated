@@ -159,11 +159,11 @@ struct _zend_ast {
 
 /* Same as zend_ast, but with children count, which is updated dynamically */
 typedef struct _zend_ast_list {
-	zend_ast_kind kind;
-	zend_ast_attr attr;
-	uint32_t lineno;
-	uint32_t children;
-	zend_ast *child[1];
+	zend_ast_kind kind;  // 结点类型，相当于我们上面的type
+	zend_ast_attr attr;  //先忽略 
+	uint32_t lineno;   //行号（进行语法分析的时候需要记录代码所在行号）
+	uint32_t children; //有多少个孩子结点
+	zend_ast *child[1];  // 柔性数组，存储孩子结点
 } zend_ast_list;
 
 /* Lineno is stored in val.u2.lineno */
