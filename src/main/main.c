@@ -2224,7 +2224,7 @@ int php_module_startup(sapi_module_struct *sf, zend_module_entry *additional_mod
 	/* initialize stream wrappers registry
 	 * (this uses configuration parameters from php.ini)
 	 */
-	if (php_init_stream_wrappers(module_number) == FAILURE)	{
+	if (php_init_stream_wrappers(module_number) == FAILURE)	{ //注册tcp流 stream协议
 		php_printf("PHP:  Unable to initialize stream url wrappers.\n");
 		return FAILURE;
 	}
@@ -2253,7 +2253,7 @@ int php_module_startup(sapi_module_struct *sf, zend_module_entry *additional_mod
 	   ahead of all other internals
 	 */
 	php_ini_register_extensions();
-	zend_startup_modules(); //15） 启动模块
+	zend_startup_modules(); //15） 启动模块 调用各PHP扩展的PHP_MINT()
 
 	/* start Zend extensions */
 	zend_startup_extensions(); //启动扩展
